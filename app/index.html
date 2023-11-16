@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vis.js Digraph Renderer</title>
+
+    <!-- Vis.js Stylesheets -->
+    <link href="https://visjs.github.io/vis-network/dist/vis-network.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Your Stylesheet (if needed) -->
+    <style>
+        #mynetwork {
+            width: 100vw;
+            height: 100vh;
+            margin: auto;
+        }
+
+    </style>
+</head>
+
+<body>
+    <!-- Container for the network visualization -->
+    <div id="mynetwork"></div>
+
+    <!-- Vis.js JavaScript Libraries -->
+    <script src="https://visjs.github.io/vis-network/dist/vis-network.min.js"></script>
+
+    <!-- Your JavaScript Code -->
+    <script>
+        // Example Digraph Data in DOT format
+        var DOTstring = 'digraph { c90d2155a4f8c72616e0fbab388bc892437d02ea02f0e7e025992ebb4e340f04[label="http://example.lan:8080"]; affc94524fc49d29dba6897194bde02a99d965f64af22966c8035339b6d3cd8b[label="http://example.lan:8080/support"]; c90d2155a4f8c72616e0fbab388bc892437d02ea02f0e7e025992ebb4e340f04 -> affc94524fc49d29dba6897194bde02a99d965f64af22966c8035339b6d3cd8b[label="dir - 200", color="green"]; 47a04222453f20044133b92b549e4cdaa138baf5ea3cda8f6ce1d3021aba4507[label="http://example.lan:8080/faq"]; c90d2155a4f8c72616e0fbab388bc892437d02ea02f0e7e025992ebb4e340f04 -> 47a04222453f20044133b92b549e4cdaa138baf5ea3cda8f6ce1d3021aba4507[label="dir - 200", color="green"]; 86c53f64fc436f857841eec805bc25d745565a1f8ad4d0b6cd0064c80a4e7d15[label="http://validsub.example.lan:8080"]; c90d2155a4f8c72616e0fbab388bc892437d02ea02f0e7e025992ebb4e340f04 -> 86c53f64fc436f857841eec805bc25d745565a1f8ad4d0b6cd0064c80a4e7d15[label="sub - 200", color="green"]; dd8ef9680676ec4d86b345b305fcb57497e514c7bc7b3a7f0b994f174e132519[label="http://app.example.lan:8080"]; c90d2155a4f8c72616e0fbab388bc892437d02ea02f0e7e025992ebb4e340f04 -> dd8ef9680676ec4d86b345b305fcb57497e514c7bc7b3a7f0b994f174e132519[label="sub - 200", color="green"]; 3e38ffd5e6edb60918578b94fcd0e0695f6acd4e6cec4c98126d5a8f3756ecb3[label="http://validsub.example.lan:8080/admin"]; 86c53f64fc436f857841eec805bc25d745565a1f8ad4d0b6cd0064c80a4e7d15 -> 3e38ffd5e6edb60918578b94fcd0e0695f6acd4e6cec4c98126d5a8f3756ecb3[label="dir - 401", color="red"]; f9e23d83d21dc430174bb96e9b9f1ace64c77f258b6b924bcebf5ca1b86e64cc[label="http://example.lan:8080/faq/our-mission"]; 7daf47dd405f6d6f206c2ba50b17d078f1b8bb003e806d3f3b87b102b1fd2111[label="http://app.example.lan:8080/login"]; 47a04222453f20044133b92b549e4cdaa138baf5ea3cda8f6ce1d3021aba4507 -> f9e23d83d21dc430174bb96e9b9f1ace64c77f258b6b924bcebf5ca1b86e64cc[label="dir - 200", color="green"]; 1121a7dbf987705ff623ea01b7d2d800587c27f2afd18e9d6d81750b509da8e1[label="http://example.lan:8080/about/our-mission"]; f9e23d83d21dc430174bb96e9b9f1ace64c77f258b6b924bcebf5ca1b86e64cc -> 1121a7dbf987705ff623ea01b7d2d800587c27f2afd18e9d6d81750b509da8e1[label="redirect", color="blue"]; dd8ef9680676ec4d86b345b305fcb57497e514c7bc7b3a7f0b994f174e132519 -> 7daf47dd405f6d6f206c2ba50b17d078f1b8bb003e806d3f3b87b102b1fd2111[label="dir - 200", color="green"]; 610ee47b2090b160e443357dd5689577060312caa5b325eb880c786ccc02ccbd[label="http://app.example.lan:8080/app-faq"]; dd8ef9680676ec4d86b345b305fcb57497e514c7bc7b3a7f0b994f174e132519 -> 610ee47b2090b160e443357dd5689577060312caa5b325eb880c786ccc02ccbd[label="dir - 200", color="green"]; 610ee47b2090b160e443357dd5689577060312caa5b325eb880c786ccc02ccbd -> 47a04222453f20044133b92b549e4cdaa138baf5ea3cda8f6ce1d3021aba4507[label="redirect", color="blue"]; }';
+
+        // Convert the DOT string to Vis.js data
+        var parsedData = vis.network.convertDot(DOTstring);
+        var data = {
+            nodes: parsedData.nodes,
+            edges: parsedData.edges
+        };
+
+        // Create the network visualization
+        var container = document.getElementById('mynetwork');
+        var options = {
+            physics: {
+                solver: 'barnesHut',
+                barnesHut: {
+                    springLength: 200,      // Distance between nodes
+                    centralGravity: 0.2     // Pulls nodes to the center. Higher values make nodes closer.
+                }
+            }
+        };
+
+        var network = new vis.Network(container, data, options);
+
+        network.on("selectNode", function (params) {
+            if (params.nodes.length > 0) {
+                var nodeId = params.nodes[0]; // Get the first selected node id
+                var clickedNode = data.nodes.filter(n => n["id"] == nodeId); // Get node data using the node id
+                console.log('Clicked node:', clickedNode[0]["label"]);
+            }
+        });
+    </script>
+</body>
+
+</html>
